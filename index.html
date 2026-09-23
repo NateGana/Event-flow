@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventFlow — Event &amp; Registration Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M8 13h2m4 0h2m-8 4h2"/></svg>
+      </span>
+      <span class="brand-name">EventFlow</span>
+    </div>
+
+    <nav class="nav" id="mainNav">
+      <button class="nav-item is-active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="events">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
+        <span>Events</span>
+      </button>
+      <button class="nav-item" data-view="participants">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Participants</span>
+      </button>
+      <button class="nav-item" data-view="reports">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
+        <span>Reports</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <p>Signed in as</p>
+      <strong>Event Organizer</strong>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="viewTitle">Dashboard</h1>
+        <p id="viewSubtitle">Overview of your events and registrations</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="quickAddEvent">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          New Event
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- DASHBOARD VIEW -->
+      <section class="view is-active" id="view-dashboard">
+        <div class="stat-grid" id="statGrid"></div>
+
+        <div class="panel-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Upcoming Events</h2>
+              <button class="link-btn" data-goto="events">View all</button>
+            </div>
+            <div id="upcomingEventsList" class="mini-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Recent Registrations</h2>
+              <button class="link-btn" data-goto="participants">View all</button>
+            </div>
+            <div id="recentRegList" class="mini-list"></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Event Capacity Overview</h2>
+          </div>
+          <div id="capacityOverview" class="capacity-overview"></div>
+        </section>
+      </section>
+
+      <!-- EVENTS VIEW -->
+      <section class="view" id="view-events">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="eventSearch" placeholder="Search events by name or location…">
+          </div>
+          <select id="eventCategoryFilter" class="select-input">
+            <option value="">All Categories</option>
+          </select>
+          <select id="eventStatusFilter" class="select-input">
+            <option value="">All Statuses</option>
+          </select>
+          <select id="eventSort" class="select-input">
+            <option value="date-asc">Date ↑</option>
+            <option value="date-desc">Date ↓</option>
+            <option value="name-asc">Name A–Z</option>
+          </select>
+          <button class="btn btn-primary" id="addEventBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Event
+          </button>
+        </div>
+        <div id="eventsGrid" class="events-grid"></div>
+      </section>
+
+      <!-- PARTICIPANTS VIEW -->
+      <section class="view" id="view-participants">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="participantSearch" placeholder="Search participants by name or email…">
+          </div>
+          <select id="participantEventFilter" class="select-input">
+            <option value="">All Events</option>
+          </select>
+          <select id="participantStatusFilter" class="select-input">
+            <option value="">All Registration Statuses</option>
+          </select>
+          <button class="btn btn-primary" id="addParticipantBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Participant
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="participantsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Event</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="participantsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="participantsEmpty" hidden>
+          <p>No participants found</p>
+          <span>Try adjusting your search or filters, or add a new participant.</span>
+        </div>
+      </section>
+
+      <!-- REPORTS VIEW -->
+      <section class="view" id="view-reports">
+        <div class="panel-grid">
+          <section class="panel">
+            <div class="panel-head"><h2>Registration Summary</h2></div>
+            <div id="reportSummary" class="report-summary"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Registration Status Breakdown</h2></div>
+            <div id="statusBreakdown" class="breakdown-list"></div>
+          </section>
+        </div>
+        <section class="panel">
+          <div class="panel-head"><h2>Capacity Usage by Event</h2></div>
+          <div id="reportCapacity" class="capacity-overview"></div>
+        </section>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal-backdrop" id="eventModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="eventModalTitle">Add Event</h2>
+      <button class="icon-btn" data-close-modal="eventModalBackdrop" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="eventForm" class="modal-form" novalidate>
+      <input type="hidden" id="eventId">
+      <div class="form-row">
+        <label for="eventName">Event Name *</label>
+        <input type="text" id="eventName" required>
+        <span class="field-error" data-error-for="eventName"></span>
+      </div>
+      <div class="form-row">
+        <label for="eventDescription">Description</label>
+        <textarea id="eventDescription" rows="3"></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="eventCategory">Category *</label>
+          <select id="eventCategory" required>
+            <option value="">Select category</option>
+            <option>Seminar</option>
+            <option>Workshop</option>
+            <option>Conference</option>
+            <option>Sports</option>
+            <option>School Event</option>
+            <option>Community</option>
+            <option>Other</option>
+          </select>
+          <span class="field-error" data-error-for="eventCategory"></span>
+        </div>
+        <div class="form-row">
+          <label for="eventStatus">Status *</label>
+          <select id="eventStatus" required>
+            <option>Upcoming</option>
+            <option>Ongoing</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="eventLocation">Location *</label>
+        <input type="text" id="eventLocation" required>
+        <span class="field-error" data-error-for="eventLocation"></span>
+      </div>
+      <div class="form-grid form-grid-3">
+        <div class="form-row">
+          <label for="eventDate">Event Date *</label>
+          <input type="date" id="eventDate" required>
+          <span class="field-error" data-error-for="eventDate"></span>
+        </div>
+        <div class="form-row">
+          <label for="eventStartTime">Start Time *</label>
+          <input type="time" id="eventStartTime" required>
+        </div>
+        <div class="form-row">
+          <label for="eventEndTime">End Time *</label>
+          <input type="time" id="eventEndTime" required>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="eventOrganizer">Organizer *</label>
+          <input type="text" id="eventOrganizer" required>
+          <span class="field-error" data-error-for="eventOrganizer"></span>
+        </div>
+        <div class="form-row">
+          <label for="eventCapacity">Capacity *</label>
+          <input type="number" id="eventCapacity" min="1" required>
+          <span class="field-error" data-error-for="eventCapacity"></span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="eventFee">Registration Fee (₱)</label>
+        <input type="number" id="eventFee" min="0" step="0.01" value="0">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="eventModalBackdrop">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PARTICIPANT MODAL -->
+<div class="modal-backdrop" id="participantModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="participantModalTitle">Add Participant</h2>
+      <button class="icon-btn" data-close-modal="participantModalBackdrop" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="participantForm" class="modal-form" novalidate>
+      <input type="hidden" id="participantId">
+      <div class="form-row">
+        <label for="participantName">Full Name *</label>
+        <input type="text" id="participantName" required>
+        <span class="field-error" data-error-for="participantName"></span>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="participantEmail">Email *</label>
+          <input type="email" id="participantEmail" required>
+          <span class="field-error" data-error-for="participantEmail"></span>
+        </div>
+        <div class="form-row">
+          <label for="participantPhone">Phone *</label>
+          <input type="tel" id="participantPhone" required>
+          <span class="field-error" data-error-for="participantPhone"></span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="participantEvent">Event *</label>
+        <select id="participantEvent" required></select>
+        <span class="field-error" data-error-for="participantEvent"></span>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="participantRegStatus">Registration Status</label>
+          <select id="participantRegStatus">
+            <option>Pending</option>
+            <option>Confirmed</option>
+            <option>Cancelled</option>
+            <option>Attended</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="participantPayStatus">Payment Status</label>
+          <select id="participantPayStatus">
+            <option>Paid</option>
+            <option>Pending</option>
+            <option>Not Required</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="participantModalBackdrop">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Participant</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EVENT DETAILS MODAL -->
+<div class="modal-backdrop" id="detailsModalBackdrop">
+  <div class="modal modal-lg" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2 id="detailsTitle">Event Details</h2>
+      <button class="icon-btn" data-close-modal="detailsModalBackdrop" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="detailsBody"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-backdrop" id="confirmModalBackdrop">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Confirm Delete</h2>
+      <button class="icon-btn" data-close-modal="confirmModalBackdrop" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMessage">Are you sure you want to delete this item? This cannot be undone.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="confirmModalBackdrop">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
