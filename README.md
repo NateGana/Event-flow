@@ -2,8 +2,7 @@
 
 **Event & Registration Management System**
 
-EventFlow is a front-end web application that helps organizations, schools, clubs, and small event organizers manage events and participant registrations from a single dashboard — no server, no database setup, no installation.
-
+EventFlow is a front-end web application that helps organizations, schools, clubs, and small event organizers manage events and participant registrations from a single dashboard.
 
 
 ## Future Improvements
